@@ -1,7 +1,7 @@
 # 90-Day Bioinformatics Sprint
 
-**Start Date:** [Insert today's date]
-**Target Completion:** [Insert date 90 days from now]
+**Start Date:** June 22, 2025  
+**Target Completion:** September 20, 2025
 
 ---
 
@@ -21,46 +21,45 @@ This repository documents my transition to full-time bioinformatics. I am commit
 
 ---
 
-## Project Log
-
-| Week | Focus | Deliverable |
-|------|-------|-------------|
-| 1 | Repository setup + environment configuration | Working environment + first script |
-| 2 | Metagenomic pipeline (QIIME2/DADA2) | Complete pipeline with documentation |
-| 3 | Pathogen detection workflow | Working script + README |
-| 4 | Single-cell analysis project | End-to-end analysis + report |
-| ... | ... | ... |
-
-*(This table will be updated weekly)*
-
----
-
 ## Daily Log
 
 | Date | Hours | Tasks Completed | Notes |
 |------|-------|-----------------|-------|
-| [Date] | 3 | Repository setup, README, environment | First day |
+| 2025-06-22 | 4 | Generated synthetic paired-end FASTQ files. Troubleshooted NCBI download issues (rate-limiting, 404 errors). Learned FASTQ format. | Used synthetic data to maintain momentum. Files: sample_1.fastq (3 reads), sample_2.fastq (3 reads). |
 
 ---
 
-## Skills Tracked
+## Project Log: Step 1 – Data Acquisition and Repository Setup
 
-- [ ] Python (pandas, numpy, scikit-learn)
-- [ ] R (tidyverse, Seurat)
-- [ ] Single-cell (Scanpy, Seurat)
-- [ ] Metagenomics (QIIME2, DADA2)
-- [ ] Nextflow / Snakemake
-- [ ] AWS / Cloud computing
-- [ ] Docker / Containerization
+**Date:** June 22, 2025  
+**Time Invested:** 2–3 hours  
+**Status:** Complete
 
----
+### Objectives
 
-## How to Use This Repository
+- Set up a public GitHub repository for the 90-day bioinformatics sprint
+- Generate valid paired-end FASTQ files for pipeline development
+- Document the data generation process
+- Establish a reproducible workflow for future steps
 
-This space is a living document. Each project will be added as a subfolder with its own README, code, and documentation.
+### Challenges Encountered
 
----
+| Challenge | Resolution |
+|-----------|------------|
+| `fasterq-dump` downloads from NCBI were slow or failed (rate-limiting, timeouts) | Switched to generating synthetic paired-end FASTQ files locally |
+| Initial FASTQ format was incorrect (missing quality score lines) | Reformatted files to include exactly 4 lines per read: identifier, sequence, separator (`+`), and quality scores |
+| GitHub web interface was unclear for deleting files | Used the checkbox selection → "..." menu → "Delete files" method |
 
-## Contact
+### What Was Completed
 
-[GitHub: github.com/AlanaAnnaman](https://github.com/AlanaAnnaman)
+| File | Purpose |
+|------|---------|
+| `README.md` | Main repository documentation with 90-day plan and daily log |
+| `data/README.md` | Documentation of data origin, format, and content |
+| `data/sample_1.fastq` | Forward reads (synthetic, 3 reads, paired-end) |
+| `data/sample_2.fastq` | Reverse reads (synthetic, 3 reads, paired-end) |
+| `.gitignore` | Excludes unnecessary files from version control |
+
+### FASTQ File Format Verification
+
+Each file contains 3 complete reads in the following format:

@@ -26,6 +26,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | Date | Hours | Tasks Completed | Notes |
 |------|-------|-----------------|-------|
 | 2025-06-22 | 4 | Generated synthetic paired-end FASTQ files. Troubleshooted NCBI download issues (rate-limiting, 404 errors). Learned FASTQ format. | Used synthetic data to maintain momentum. Files: sample_1.fastq (3 reads), sample_2.fastq (3 reads). |
+| 2025-06-23 | 2 | Ran FastQC and MultiQC on synthetic data. Generated QC reports. Uploaded results to GitHub. | Reports confirm perfect quality (expected). Ready for taxonomic classification. |
 
 ---
 
@@ -34,6 +35,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 **Date:** June 22, 2025  
 **Time Invested:** 2–3 hours  
 **Status:** Complete
+
 
 ### Objectives
 
@@ -88,6 +90,22 @@ IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII
 - Upload results and update documentation
 
 ---
+
+### Step 2 Results: Quality Control
+
+| Metric | sample_1.fastq | sample_2.fastq |
+|--------|----------------|----------------|
+| Total Sequences | 10,000 | 10,000 |
+| Sequences flagged as poor quality | 0 | 0 |
+| Sequence length | 104 bp | 103 bp |
+| %GC | 50% | 50% |
+
+**Conclusion:** All reads passed QC. Ready for taxonomic classification.
+
+
+
+
+
 
 ## Skills Tracked
 

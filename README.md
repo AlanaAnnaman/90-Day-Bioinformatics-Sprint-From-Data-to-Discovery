@@ -23,12 +23,13 @@ This repository documents my transition to full-time bioinformatics. I am commit
 
 ## Daily Log
 
+## Daily Log
+
 | Date | Hours | Tasks Completed | Notes |
 |------|-------|-----------------|-------|
 | 2025-06-22 | 4 | Generated synthetic paired-end FASTQ files. Troubleshooted NCBI download issues (rate-limiting, 404 errors). Learned FASTQ format. | Used synthetic data to maintain momentum. Files: sample_1.fastq (3 reads), sample_2.fastq (3 reads). |
 | 2025-06-23 | 2 | Ran FastQC and MultiQC on synthetic data. Generated QC reports. Uploaded results to GitHub. | Reports confirm perfect quality (expected). Ready for taxonomic classification. |
 | 2025-06-24 | 3 | Installed Kraken2. Attempted taxonomic classification on synthetic data. Documented pipeline readiness. | Database unavailable; pipeline confirmed working. Ready for real data. |
----
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 

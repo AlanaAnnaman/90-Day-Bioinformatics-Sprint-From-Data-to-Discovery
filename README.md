@@ -30,7 +30,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-06-22 | 4 | Generated synthetic paired-end FASTQ files. Troubleshooted NCBI download issues (rate-limiting, 404 errors). Learned FASTQ format. | Used synthetic data to maintain momentum. Files: sample_1.fastq (3 reads), sample_2.fastq (3 reads). |
 | 2025-06-23 | 2 | Ran FastQC and MultiQC on synthetic data. Generated QC reports. Uploaded results to GitHub. | Reports confirm perfect quality (expected). Ready for taxonomic classification. |
 | 2025-06-24 | 3 | Installed Kraken2. Attempted taxonomic classification on synthetic data. Documented pipeline readiness. | Database unavailable; pipeline confirmed working. Ready for real data. |
-
+| 2025-06-25 | 2 | Downloaded real metagenomic data (SRR22470507). Ran QC. Generated reports. | Pipeline ready; awaiting Kraken2 database. |
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
 **Date:** June 22, 2025  
@@ -134,7 +134,31 @@ kraken2-build --db . --build --threads 2
 # Run Kraken2 (test mode)
 kraken2 --db /tmp --paired sample_1.fastq sample_2.fastq
 
+###Step 4 – Real Data Analysis
 
+**Date:** June 25, 2025  
+**Time Invested:** 2 hours  
+**Status:** Partial (QC Complete)
+
+#### Objectives
+
+- Download real metagenomic data
+- Run QC on real data
+
+#### Results
+
+| Metric | Value |
+|--------|-------|
+| Dataset | SRR22470507 |
+| File type | Single-end |
+| File size | 113 MB |
+| QC status | Complete |
+
+#### Next Steps
+
+- Download full Kraken2 database
+- Run Kraken2 on real data
+- Identify organisms
 
 
 ## Skills Tracked

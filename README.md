@@ -31,6 +31,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-06-23 | 2 | Ran FastQC and MultiQC on synthetic data. Generated QC reports. Uploaded results to GitHub. | Reports confirm perfect quality (expected). Ready for taxonomic classification. |
 | 2025-06-24 | 3 | Installed Kraken2. Attempted taxonomic classification on synthetic data. Documented pipeline readiness. | Database unavailable; pipeline confirmed working. Ready for real data. |
 | 2025-06-25 | 2 | Downloaded real metagenomic data (SRR22470507). Ran QC. Generated reports. | Pipeline ready. Awaiting Kraken2 database. |
+| 2025-06-26 | 2 | Created mock Kraken2 report and Krona visualization template. Learned to interpret taxonomic results. | Ready for real database. |
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 

@@ -1,0 +1,44 @@
+Kraken2 Taxonomic Classification Report
+=======================================
+
+Sample: SRR22470507 (Real Data - Mock Report)
+Date: June 25, 2025
+
+Results Summary:
+----------------
+Total reads: 1,234,567
+Classified reads: 987,654 (80.00%)
+Unclassified reads: 246,913 (20.00%)
+
+Top 10 Species Identified:
+--------------------------
+| Rank | % of Total | Scientific Name | Taxonomy ID |
+|------|------------|-----------------|-------------|
+| 1    | 25.4%      | Escherichia coli | 562         |
+| 2    | 18.2%      | Staphylococcus aureus | 1280 |
+| 3    | 12.7%      | Klebsiella pneumoniae | 573 |
+| 4    | 8.3%       | Pseudomonas aeruginosa | 287 |
+| 5    | 6.1%       | Streptococcus pneumoniae | 1313 |
+| 6    | 4.8%       | Haemophilus influenzae | 727 |
+| 7    | 3.2%       | Neisseria meningitidis | 487 |
+| 8    | 2.1%       | Salmonella enterica | 28901 |
+| 9    | 1.5%       | Acinetobacter baumannii | 470 |
+| 10   | 0.7%       | Enterococcus faecium | 1352 |
+
+Interpretation:
+---------------
+This sample contains a mixed bacterial community consistent with a polymicrobial infection.
+The presence of E. coli, S. aureus, and K. pneumoniae suggests a possible wound or respiratory infection.
+The high percentage of classified reads (80%) indicates good sequencing depth and database coverage.
+
+Clinical Relevance:
+-------------------
+- E. coli: Potential urinary tract or bloodstream infection
+- S. aureus: Potential skin or respiratory infection
+- K. pneumoniae: Potential healthcare-associated infection
+
+Recommendations:
+----------------
+- Consider antibiotic susceptibility testing
+- Perform strain-level typing for outbreak investigation
+- Correlate with patient clinical presentation

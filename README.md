@@ -34,6 +34,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-06-26 | 2 | Created mock Kraken2 report and Krona visualization template. Learned to interpret taxonomic results. | Ready for real database. |
 | 2025-06-27 | 3 | Attempted multiple Kraken2 database downloads. Used synthetic data results as final output. | Pipeline confirmed working. Ready for real database when available. |
 | 2025-06-28 | 4 | Extended 90-day sprint to astrobiology ML. Downloaded real exoplanet data, built Random Forest model, identified 2 habitable candidates. | Real data: 10 planets, all too hot (604-1717K). Synthetic data produced 2 habitable candidates. |
+| 2025-06-29 | 3 | Analyzed 10 real exoplanets from NASA. Found: all too hot (604-1717K), none in habitable zone, all larger than Earth. | Data incomplete: 80% missing mass, 50% missing temperature. Need more real data. |
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
@@ -285,6 +286,50 @@ The pipeline works! The real data shows why we need more complete datasets — m
 
 🔗 **ML Project Repository**: [exoplanet-habitability-ml](https://github.com/AlanaAnnaman/exoplanet-habitability-ml)
 
+## 🌍 Astrobiology ML Extension
+
+After completing the core bioinformatics pipeline, I extended the project to apply machine learning to exoplanet habitability.
+
+### What I Did
+- Downloaded 10 real exoplanets from NASA Exoplanet Archive
+- Generated 100 synthetic planets for training
+- Built a Random Forest model to predict equilibrium temperature
+- Classified planets as potentially habitable (200K-400K)
+- **Analyzed the 10 real exoplanets in depth**
+
+### Results
+
+#### Machine Learning Results
+- **Found 2 potentially habitable planets** 🌍 (from synthetic data)
+- Identified planet radius and orbital period as key features
+- R² Score: -0.12 (expected with small dataset)
+
+#### Real Data Analysis (10 NASA Exoplanets)
+| Category | Finding |
+|----------|---------|
+| **Temperature Range** | 604K – 1717K |
+| **Average Temperature** | 1137K |
+| **Habitable Zone Planets** | **0** (none) |
+| **Planet Size Range** | 1.55 – 14.18 Earth radii |
+| **Average Size** | 5.00 Earth radii |
+| **Mass Range** | 2.56 – 11.00 Earth masses |
+| **Data Completeness** | Mass: 20%, Temperature: 50% |
+
+#### Key Insights
+- **No habitable planets** in the real dataset — all are too hot for liquid water
+- **All planets are larger than Earth** — none are Earth-sized
+- **Data is incomplete** — most planets lack mass or temperature measurements
+- **Synthetic data helped test the pipeline** but real data is essential
+
+### What I Learned
+1. Real exoplanet data is sparse and incomplete — this is normal and challenging
+2. Synthetic data is useful for testing but cannot replace real data
+3. Feature importance (planet radius and orbital period) makes physical sense
+4. Need more real data (500+ planets) for robust ML
+
+📊 **Full Summary**: [ASTROBIOLOGY_ML_SUMMARY.md](ASTROBIOLOGY_ML_SUMMARY.md)
+
+🔗 **ML Project Repository**: [exoplanet-habitability-ml](https://github.com/AlanaAnnaman/exoplanet-habitability-ml)
 
 ## Skills Tracked
 

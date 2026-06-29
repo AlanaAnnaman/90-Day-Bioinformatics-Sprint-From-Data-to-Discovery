@@ -33,6 +33,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-06-25 | 2 | Downloaded real metagenomic data (SRR22470507). Ran QC. Generated reports. | Pipeline ready. Awaiting Kraken2 database. |
 | 2025-06-26 | 2 | Created mock Kraken2 report and Krona visualization template. Learned to interpret taxonomic results. | Ready for real database. |
 | 2025-06-27 | 3 | Attempted multiple Kraken2 database downloads. Used synthetic data results as final output. | Pipeline confirmed working. Ready for real database when available. |
+| 2025-06-28 | 4 | Extended 90-day sprint to astrobiology ML. Downloaded real exoplanet data, built Random Forest model, identified 2 habitable candidates. | Real data: 10 planets, all too hot (604-1717K). Synthetic data produced 2 habitable candidates. |
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
@@ -262,6 +263,27 @@ kraken2 --db /tmp --paired sample_1.fastq sample_2.fastq
 
 ---
 
+## 🌍 Astrobiology ML Extension
+
+After completing the core bioinformatics pipeline, I extended the project to apply machine learning to exoplanet habitability.
+
+### What I Did
+- Downloaded 10 real exoplanets from NASA Exoplanet Archive
+- Generated 100 synthetic planets for training
+- Built a Random Forest model to predict equilibrium temperature
+- Classified planets as potentially habitable (200K-400K)
+
+### Results
+- **Found 2 potentially habitable planets** 🌍
+- Identified planet radius and orbital period as key features
+- Real data analysis showed: all 10 real planets are too hot (604K-1717K)
+
+### Key Insight
+The pipeline works! The real data shows why we need more complete datasets — most planets lack mass or temperature measurements, making ML challenging but necessary.
+
+📊 **Full Summary**: [ASTROBIOLOGY_ML_SUMMARY.md](ASTROBIOLOGY_ML_SUMMARY.md)
+
+🔗 **ML Project Repository**: [exoplanet-habitability-ml](https://github.com/AlanaAnnaman/exoplanet-habitability-ml)
 
 
 ## Skills Tracked

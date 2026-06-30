@@ -35,6 +35,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-06-27 | 3 | Attempted multiple Kraken2 database downloads. Used synthetic data results as final output. | Pipeline confirmed working. Ready for real database when available. |
 | 2025-06-28 | 4 | Extended 90-day sprint to astrobiology ML. Downloaded real exoplanet data, built Random Forest model, identified 2 habitable candidates. | Real data: 10 planets, all too hot (604-1717K). Synthetic data produced 2 habitable candidates. |
 | 2025-06-29 | 3 | Analyzed 10 real exoplanets from NASA. Found: all too hot (604-1717K), none in habitable zone, all larger than Earth. | Data incomplete: 80% missing mass, 50% missing temperature. Need more real data. |
+| 2025-06-30 | 2 | Analyzed stellar metallicity for 8 exoplanets. Found: 4 metal-rich, 1 solar-like, 2 metal-poor. Highest: Kepler-491 b (+0.37). | Average metallicity: +0.118. Most planets orbit metal-rich stars. |
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
@@ -330,6 +331,29 @@ After completing the core bioinformatics pipeline, I extended the project to app
 📊 **Full Summary**: [ASTROBIOLOGY_ML_SUMMARY.md](ASTROBIOLOGY_ML_SUMMARY.md)
 
 🔗 **ML Project Repository**: [exoplanet-habitability-ml](https://github.com/AlanaAnnaman/exoplanet-habitability-ml)
+
+
+### 🔬 Stellar Metallicity Analysis (June 30)
+
+I analyzed the stellar metallicity of 8 exoplanets to understand their host star composition.
+
+| Metric | Value |
+|--------|-------|
+| Planets with Metallicity | 6 |
+| Range | -0.20 to +0.37 |
+| Average | +0.118 |
+
+**Key Findings:**
+- **4 planets** orbit metal-rich stars (st_met > 0)
+- **Highest**: Kepler-491 b (+0.37)
+- **Lowest**: Kepler-259 c (-0.20)
+
+**Interpretation:** Most planets in this sample orbit stars with higher metallicity than the Sun, which is consistent with the trend that giant planets are more common around metal-rich stars.
+
+📊 **Full Analysis**: [METALLICITY_ANALYSIS.md](METALLICITY_ANALYSIS.md)
+
+
+
 
 ## Skills Tracked
 

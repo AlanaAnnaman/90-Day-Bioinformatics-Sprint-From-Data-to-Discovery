@@ -36,6 +36,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-06-28 | 4 | Extended 90-day sprint to astrobiology ML. Downloaded real exoplanet data, built Random Forest model, identified 2 habitable candidates. | Real data: 10 planets, all too hot (604-1717K). Synthetic data produced 2 habitable candidates. |
 | 2025-06-29 | 3 | Analyzed 10 real exoplanets from NASA. Found: all too hot (604-1717K), none in habitable zone, all larger than Earth. | Data incomplete: 80% missing mass, 50% missing temperature. Need more real data. |
 | 2025-06-30 | 2 | Analyzed stellar metallicity for 8 exoplanets. Found: 4 metal-rich, 1 solar-like, 2 metal-poor. Highest: Kepler-491 b (+0.37). | Average metallicity: +0.118. Most planets orbit metal-rich stars. |
+| 2025-07-01 | 3 | Downloaded Ebola scRNA-seq dataset (GSE192447). 73 samples across 13 tissues. Control vs Ebola-infected rhesus macaque samples. | Data from Santus et al. Nat Commun 2023. Ready for analysis in R/Seurat. |
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
@@ -353,7 +354,45 @@ I analyzed the stellar metallicity of 8 exoplanets to understand their host star
 📊 **Full Analysis**: [METALLICITY_ANALYSIS.md](METALLICITY_ANALYSIS.md)
 
 
+## 🧬 Ebola scRNA-seq Project (In Progress)
 
+I am analyzing a public scRNA-seq dataset from rhesus macaques infected with Ebola virus (GEO: GSE192447).
+
+### Dataset Summary
+
+| Feature | Details |
+|---------|---------|
+| **Study** | Santus L, et al. Nat Commun 2023 |
+| **Organism** | Rhesus macaque (*Macaca mulatta*) |
+| **Samples** | 73 samples |
+| **Tissues** | 13 tissues (adrenal, brain, kidney, liver, lymph nodes, ovary, skin, spinal cord, spleen, testis, and more) |
+| **Conditions** | Control (CtrlAb) vs Ebola-infected (EbovAb) |
+
+### Research Questions
+
+1. How do immune cell populations shift during Ebola infection?
+2. What are the key pathways driving severe disease?
+3. What is the role of lncRNAs in the host defense response?
+
+### Files Downloaded
+
+| File | Size | Description |
+|------|------|-------------|
+| `GSE192447_RAW.tar` | 388.7 MB | Raw GTF files for all samples |
+| 73 `.gtf.gz` files | Various | Individual sample gene expression data |
+
+### Next Steps
+
+- Load data into R using Seurat
+- Quality control and filtering
+- Dimensionality reduction (PCA, UMAP, t-SNE)
+- Differential expression analysis (Ebola vs Control)
+- Pathway enrichment analysis
+
+### References
+
+- [GEO: GSE192447](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE192447)
+- Santus L, et al. (2023). Single-cell profiling of lncRNA expression during Ebola virus infection in rhesus macaques. *Nat Commun* 14, 3866. [PMID: 37391481](https://pubmed.ncbi.nlm.nih.gov/37391481/)
 
 ## Skills Tracked
 

@@ -37,6 +37,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-06-29 | 3 | Analyzed 10 real exoplanets from NASA. Found: all too hot (604-1717K), none in habitable zone, all larger than Earth. | Data incomplete: 80% missing mass, 50% missing temperature. Need more real data. |
 | 2025-06-30 | 2 | Analyzed stellar metallicity for 8 exoplanets. Found: 4 metal-rich, 1 solar-like, 2 metal-poor. Highest: Kepler-491 b (+0.37). | Average metallicity: +0.118. Most planets orbit metal-rich stars. |
 | 2025-07-01 | 3 | Downloaded Ebola scRNA-seq dataset (GSE192447). 73 samples across 13 tissues. Control vs Ebola-infected rhesus macaque samples. | Data from Santus et al. Nat Commun 2023. Ready for analysis in R/Seurat. |
+| 2025-07-02 | 2 | Set up R environment for Ebola scRNA-seq analysis. Loaded Seurat, tidyverse, patchwork. Ready for QC and dimensionality reduction. | Libraries loaded successfully. Dataset: GSE192447 (73 samples, 13 tissues). |
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
@@ -393,6 +394,24 @@ I am analyzing a public scRNA-seq dataset from rhesus macaques infected with Ebo
 
 - [GEO: GSE192447](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE192447)
 - Santus L, et al. (2023). Single-cell profiling of lncRNA expression during Ebola virus infection in rhesus macaques. *Nat Commun* 14, 3866. [PMID: 37391481](https://pubmed.ncbi.nlm.nih.gov/37391481/)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    warning = FALSE,
+    message = FALSE,
+    fig.width = 10,
+    fig.height = 6
+)
+
+
+
+# Load libraries for Ebola scRNA-seq analysis
+library(tidyverse)   # Data manipulation and visualization
+library(Seurat)      # scRNA-seq analysis (core tool)
+library(patchwork)   # Combining multiple ggplot2 plots
+library(ggplot2)     # Visualization
+
 
 ## Skills Tracked
 

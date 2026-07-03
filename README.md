@@ -38,6 +38,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-06-30 | 2 | Analyzed stellar metallicity for 8 exoplanets. Found: 4 metal-rich, 1 solar-like, 2 metal-poor. Highest: Kepler-491 b (+0.37). | Average metallicity: +0.118. Most planets orbit metal-rich stars. |
 | 2025-07-01 | 3 | Downloaded Ebola scRNA-seq dataset (GSE192447). 73 samples across 13 tissues. Control vs Ebola-infected rhesus macaque samples. | Data from Santus et al. Nat Commun 2023. Ready for analysis in R/Seurat. |
 | 2025-07-02 | 2 | Set up R environment for Ebola scRNA-seq analysis. Loaded Seurat, tidyverse, patchwork. Ready for QC and dimensionality reduction. | Libraries loaded successfully. Dataset: GSE192447 (73 samples, 13 tissues). |
+| 2025-07-03 | 4 | Completed full scRNA-seq analysis on Ebola dataset. Clustered 42,881 cells into 17 populations. Identified neutrophil expansion (+12.5%) and monocyte/macrophage depletion (-16.2%) during Ebola infection. | Key finding: Acute inflammatory shift from monocytes to neutrophils. Code and results documented. |
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
@@ -411,6 +412,27 @@ library(tidyverse)   # Data manipulation and visualization
 library(Seurat)      # scRNA-seq analysis (core tool)
 library(patchwork)   # Combining multiple ggplot2 plots
 library(ggplot2)     # Visualization
+
+
+### Key Findings: Immune Cell Population Shifts During Ebola Infection
+
+**Expanded Cell Populations (Recruited/Proliferated):**
+- Cluster 0: +12.5% (unknown cell type)
+- Cluster 2: +11.3% (neutrophils)
+- Cluster 4: +7.0%
+- Cluster 7: +6.1%
+- Cluster 8: +5.8%
+- Cluster 11: +4.3%
+
+**Contracted Cell Populations (Depleted/Lost):**
+- Cluster 5: -16.2% (monocytes/macrophages)
+- Cluster 9: -13.3% (monocytes/macrophages)
+- Cluster 6: -9.1% (monocytes/macrophages)
+- Cluster 14: -11.4% (monocytes/macrophages)
+
+**Interpretation:**
+Ebola infection drives a shift from monocytes/macrophages toward neutrophil recruitment, consistent with an acute inflammatory response and immune dysregulation.
+
 
 
 ## Skills Tracked

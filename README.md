@@ -39,6 +39,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-07-01 | 3 | Downloaded Ebola scRNA-seq dataset (GSE192447). 73 samples across 13 tissues. Control vs Ebola-infected rhesus macaque samples. | Data from Santus et al. Nat Commun 2023. Ready for analysis in R/Seurat. |
 | 2025-07-02 | 2 | Set up R environment for Ebola scRNA-seq analysis. Loaded Seurat, tidyverse, patchwork. Ready for QC and dimensionality reduction. | Libraries loaded successfully. Dataset: GSE192447 (73 samples, 13 tissues). |
 | 2025-07-03 | 4 | Completed full scRNA-seq analysis on Ebola dataset. Clustered 42,881 cells into 17 populations. Identified neutrophil expansion (+12.5%) and monocyte/macrophage depletion (-16.2%) during Ebola infection. | Key finding: Acute inflammatory shift from monocytes to neutrophils. Code and results documented. |
+| 2025-07-04 | 3 | Completed full scRNA-seq analysis on Ebola dataset. Clustered 42,881 cells into 17 populations. Quantified immune cell shifts: neutrophils expanded (+11.3%), monocytes/macrophages contracted (-16.2%). | Key finding: Ebola drives acute inflammatory shift. Analysis complete. |
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
@@ -433,7 +434,27 @@ library(ggplot2)     # Visualization
 **Interpretation:**
 Ebola infection drives a shift from monocytes/macrophages toward neutrophil recruitment, consistent with an acute inflammatory response and immune dysregulation.
 
+### Key Findings: Ebola scRNA-seq Analysis
 
+**Dataset:** 42,881 cells from rhesus macaques (GSE192447)
+
+**Clusters identified:** 17 immune cell populations
+
+**Expanded in Ebola:**
+- Cluster 0: +12.5%
+- Cluster 2 (Neutrophils): +11.3%
+- Cluster 4: +7.0%
+- Cluster 7: +6.1%
+- Cluster 8: +5.8%
+- Cluster 11: +4.3%
+
+**Contracted in Ebola:**
+- Cluster 5: -16.2%
+- Cluster 9: -13.3%
+- Cluster 14: -11.4%
+- Cluster 6: -9.1%
+
+**Interpretation:** Ebola infection triggers neutrophil recruitment while depleting monocytes/macrophages, consistent with acute inflammatory response and immune dysregulation.
 
 ## Skills Tracked
 

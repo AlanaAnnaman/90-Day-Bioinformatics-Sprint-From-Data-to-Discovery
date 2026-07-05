@@ -39,6 +39,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-07-01 | 3 | Downloaded Ebola scRNA-seq dataset (GSE192447). 73 samples across 13 tissues. Control vs Ebola-infected rhesus macaque samples. | Data from Santus et al. Nat Commun 2023. Ready for analysis in R/Seurat. |
 | 2025-07-02 | 2 | Set up R environment for Ebola scRNA-seq analysis. Loaded Seurat, tidyverse, patchwork. Ready for QC and dimensionality reduction. | Libraries loaded successfully. Dataset: GSE192447 (73 samples, 13 tissues). |
 | 2025-07-03 | 4 | Completed full scRNA-seq analysis on Ebola dataset. Clustered 42,881 cells into 17 populations. Identified neutrophil expansion (+12.5%) and monocyte/macrophage depletion (-16.2%) during Ebola infection. | Key finding: Acute inflammatory shift from monocytes to neutrophils. Code and results documented. |
+| 2025-07-04 | 4 | Completed differential expression analysis on Ebola dataset. Identified top up-regulated genes (S100A8, ISG15, MX1) and down-regulated genes (CD79A, KRT16, LAMB3). Created volcano plot. | Key finding: Strong antiviral (interferon) and inflammatory response with B cell suppression and tissue damage. |
 
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
@@ -434,7 +435,23 @@ library(ggplot2)     # Visualization
 **Interpretation:**
 Ebola infection drives a shift from monocytes/macrophages toward neutrophil recruitment, consistent with an acute inflammatory response and immune dysregulation.
 
+### Differential Expression Analysis: Ebola vs Control
 
+**Top Up-Regulated Genes (Turned ON in Ebola):**
+- **S100A8/S100A9** — Inflammatory markers (neutrophil activation)
+- **ISG15, MX1, MX2, IFI27** — Interferon response (antiviral)
+- **GBP3** — Immune defense
+- **LTF, LYZ** — Antimicrobial response
+- **MMP9** — Tissue remodeling
+
+**Top Down-Regulated Genes (Turned OFF in Ebola):**
+- **SPINK5** — Protease inhibitor (barrier function)
+- **CD79A** — B cell receptor (B cell suppression)
+- **KRT16, LAMB3, PLEC** — Epithelial integrity (tissue damage)
+- **TIMP3** — Tissue inhibitor of metalloproteinases
+
+**Interpretation:**
+Ebola infection triggers a strong antiviral (interferon) and inflammatory (S100A8/9) response while simultaneously suppressing B cell function and epithelial integrity. This suggests a state of immune activation combined with tissue damage and immune dysregulation.
 
 ## Skills Tracked
 

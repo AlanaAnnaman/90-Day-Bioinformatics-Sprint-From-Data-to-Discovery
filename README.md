@@ -40,6 +40,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-07-02 | 2 | Set up R environment for Ebola scRNA-seq analysis. Loaded Seurat, tidyverse, patchwork. Ready for QC and dimensionality reduction. | Libraries loaded successfully. Dataset: GSE192447 (73 samples, 13 tissues). |
 | 2025-07-03 | 4 | Completed full scRNA-seq analysis on Ebola dataset. Clustered 42,881 cells into 17 populations. Identified neutrophil expansion (+12.5%) and monocyte/macrophage depletion (-16.2%) during Ebola infection. | Key finding: Acute inflammatory shift from monocytes to neutrophils. Code and results documented. |
 | 2025-07-04 | 4 | Completed differential expression analysis on Ebola dataset. Identified top up-regulated genes (S100A8, ISG15, MX1) and down-regulated genes (CD79A, KRT16, LAMB3). Created volcano plot. | Key finding: Strong antiviral (interferon) and inflammatory response with B cell suppression and tissue damage. |
+| 2025-07-05 | 4 | continued....Completed differential expression analysis on Ebola dataset. Identified top up-regulated genes (S100A8, ISG15, MX1) and down-regulated genes (CD79A, KRT16, LAMB3). Created volcano plot. | Key finding: Strong antiviral (interferon) and inflammatory response with B cell suppression and tissue damage. |
 
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup

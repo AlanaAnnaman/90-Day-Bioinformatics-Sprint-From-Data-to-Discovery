@@ -453,6 +453,43 @@ Ebola infection drives a shift from monocytes/macrophages toward neutrophil recr
 **Interpretation:**
 Ebola infection triggers a strong antiviral (interferon) and inflammatory (S100A8/9) response while simultaneously suppressing B cell function and epithelial integrity. This suggests a state of immune activation combined with tissue damage and immune dysregulation.
 
+
+### July 4, 2025: Differential Expression Results
+
+**Top Up-Regulated Genes (Turned ON in Ebola):**
+
+| Gene | Fold Change | Function |
+|------|-------------|----------|
+| S100A8 | 833 | Inflammatory marker (neutrophil activation) |
+| S100A9 | 706 | Inflammatory marker (neutrophil activation) |
+| ISG15 | 333 | Interferon response (antiviral) |
+| MX1 | 115 | Interferon-induced (antiviral) |
+| IFI27 | 209 | Interferon response |
+| GBP3 | 247 | Immune defense |
+| LTF | 557 | Antimicrobial |
+| LYZ | 446 | Antimicrobial |
+| MMP9 | 220 | Tissue remodeling |
+
+**Top Down-Regulated Genes (Turned OFF in Ebola):**
+
+| Gene | Fold Change | Function |
+|------|-------------|----------|
+| SPINK5 | -78 | Protease inhibitor (skin barrier) |
+| CD79A | -20 | B cell receptor (B cell function) |
+| KRT16 | -19 | Keratin (epithelial integrity) |
+| LAMB3 | -18 | Cell adhesion |
+| PLEC | -14 | Cytoskeletal protein |
+
+**Interpretation:**
+- **Antiviral response is ON:** Interferon genes (ISG15, MX1, IFI27) are strongly activated.
+- **Inflammatory response is ON:** S100A8/A9 and antimicrobial genes (LTF, LYZ) are highly expressed.
+- **B cell function is OFF:** CD79A is suppressed.
+- **Tissue integrity is compromised:** KRT16, LAMB3, PLEC are down-regulated.
+
+This suggests a state of immune activation with tissue damage and B cell suppression.
+
+
+
 ## Skills Tracked
 
 - [ ] Python (pandas, numpy, scikit-learn)

@@ -41,6 +41,7 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-07-03 | 4 | Completed full scRNA-seq analysis on Ebola dataset. Clustered 42,881 cells into 17 populations. Identified neutrophil expansion (+12.5%) and monocyte/macrophage depletion (-16.2%) during Ebola infection. | Key finding: Acute inflammatory shift from monocytes to neutrophils. Code and results documented. |
 | 2025-07-04 | 4 | Completed differential expression analysis on Ebola dataset. Identified top up-regulated genes (S100A8, ISG15, MX1) and down-regulated genes (CD79A, KRT16, LAMB3). Created volcano plot. | Key finding: Strong antiviral (interferon) and inflammatory response with B cell suppression and tissue damage. |
 | 2025-07-05 | 4 | continued....Completed differential expression analysis on Ebola dataset. Identified top up-regulated genes (S100A8, ISG15, MX1) and down-regulated genes (CD79A, KRT16, LAMB3). Created volcano plot. | Key finding: Strong antiviral (interferon) and inflammatory response with B cell suppression and tissue damage. |
+| 2025-07-06 to 2025-07-078 |  Identified and fixed two analysis bugs: (1) missing NormalizeData() step had produced biologically implausible fold-change values (log2FC > 300); (2) Control/Ebola sample labeling only matched "D000," mislabeling pre-infection Day -30/-4 samples as Ebola. Re-ran full pipeline with corrections. Ran FindAllMarkers() to annotate all 18 clusters by cell type, then subclustered one ambiguous cluster ("B cells/DC") to resolve it into cleaner sub-populations. Rewrote README with corrected results.Key finding: Corrected analysis confirms and refines earlier results — strong interferon/antiviral signature (ISG15, IFIT3, MX1), sharp epithelial barrier loss (KRT16, CDH1, KRT7 down; epithelial cell % drops from 5.4% to 0.04%), lymphocyte depletion (naive T, B, cytotoxic T/NK cells all sharply reduced), and emergency myeloid/neutrophil expansion — all now supported by both cell-composition and gene-expression evidence, on a properly labeled Control group. 
 
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
@@ -359,135 +360,140 @@ I analyzed the stellar metallicity of 8 exoplanets to understand their host star
 📊 **Full Analysis**: [METALLICITY_ANALYSIS.md](METALLICITY_ANALYSIS.md)
 
 
-## 🧬 Ebola scRNA-seq Project (In Progress)
+# 🧬 Ebola scRNA-seq Analysis
 
-I am analyzing a public scRNA-seq dataset from rhesus macaques infected with Ebola virus (GEO: GSE192447).
+Single-cell RNA-seq analysis of a public dataset from rhesus macaques infected with Ebola virus, examining how immune cell populations and gene expression shift during infection.
 
-### Dataset Summary
+## Dataset Summary
 
 | Feature | Details |
 |---------|---------|
-| **Study** | Santus L, et al. Nat Commun 2023 |
+| **Study** | Santus L, et al. *Nat Commun* 2023 |
 | **Organism** | Rhesus macaque (*Macaca mulatta*) |
-| **Samples** | 73 samples |
-| **Tissues** | 13 tissues (adrenal, brain, kidney, liver, lymph nodes, ovary, skin, spinal cord, spleen, testis, and more) |
-| **Conditions** | Control (CtrlAb) vs Ebola-infected (EbovAb) |
+| **GEO Accession** | [GSE192447](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE192447) |
+| **Cells analyzed** | 42,881 cells, 16,816 features |
+| **Conditions** | Control (pre-infection: Day -30, Day -4, Day 0) vs Ebola-infected (Day 3–8 post-infection) |
+| **Control cells** | 7,514 |
+| **Ebola cells** | 35,367 |
 
-### Research Questions
+**Note on scope:** the original study profiled 13 tissues. The specific data file used in this analysis does not include tissue-of-origin metadata (checked via `colnames(seurat_obj@meta.data)`), so results here reflect this cell population only, not a confirmed single tissue or the full multi-tissue dataset. This is noted as a limitation below.
 
+## Research Questions
 1. How do immune cell populations shift during Ebola infection?
-2. What are the key pathways driving severe disease?
-3. What is the role of lncRNAs in the host defense response?
+2. What genes and pathways drive the immune response?
+3. Can single-cell resolution reveal cell-type-specific effects invisible in bulk analysis?
 
-### Files Downloaded
+## Analysis Pipeline
+1. Loaded raw expression data (Seurat object)
+2. Log-normalized expression data (`NormalizeData`) — required before differential expression; see Data Quality Note below
+3. Labeled cells as Control vs Ebola based on sample metadata (day of infection)
+4. Identified variable features, scaled data, ran PCA
+5. Clustered cells (Louvain algorithm, resolution 0.5) and visualized with UMAP — 18 clusters identified
+6. Annotated clusters using `FindAllMarkers` and known immune cell marker genes
+7. Ran differential expression (Ebola vs Control) using `FindMarkers`
+8. Subclustered one ambiguous cluster to resolve mixed cell populations within it
 
-| File | Size | Description |
-|------|------|-------------|
-| `GSE192447_RAW.tar` | 388.7 MB | Raw GTF files for all samples |
-| 73 `.gtf.gz` files | Various | Individual sample gene expression data |
+## Data Quality Note
 
-### Next Steps
+An earlier version of the Control/Ebola labeling only matched samples containing "D000" in the sample name, missing pre-infection baseline samples labeled "D-30" and "D-04". This mislabeled ~4,000 true baseline cells as "Ebola." The fix:
 
-- Load data into R using Seurat
-- Quality control and filtering
-- Dimensionality reduction (PCA, UMAP, t-SNE)
-- Differential expression analysis (Ebola vs Control)
-- Pathway enrichment analysis
-
-### References
-
-- [GEO: GSE192447](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE192447)
-- Santus L, et al. (2023). Single-cell profiling of lncRNA expression during Ebola virus infection in rhesus macaques. *Nat Commun* 14, 3866. [PMID: 37391481](https://pubmed.ncbi.nlm.nih.gov/37391481/)
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-    echo = TRUE,
-    warning = FALSE,
-    message = FALSE,
-    fig.width = 10,
-    fig.height = 6
+```r
+seurat_obj$condition <- ifelse(
+    grepl("D000|D-30|D-04", seurat_obj$orig.ident),
+    "Control",
+    "Ebola"
 )
+```
 
+corrected the Control group from 3,574 to 7,514 cells. All results below reflect the corrected grouping. A separate, earlier bug (missing `NormalizeData()` step) had also produced biologically implausible fold-change values (e.g., log2FC > 300); this was fixed by log-normalizing counts prior to `FindMarkers()`, bringing fold changes into a realistic range.
 
+## Cell Type Composition: Control vs Ebola
 
-# Load libraries for Ebola scRNA-seq analysis
-library(tidyverse)   # Data manipulation and visualization
-library(Seurat)      # scRNA-seq analysis (core tool)
-library(patchwork)   # Combining multiple ggplot2 plots
-library(ggplot2)     # Visualization
+Cluster identities were assigned using `FindAllMarkers()` and known immune marker genes.
 
+| Cell Type | % Control | % Ebola | Change |
+|---|---|---|---|
+| Naive T cells | 32.2% | 12.6% | ↓ |
+| B cells | 24.6% | 2.3% | ↓↓ |
+| Cytotoxic T/NK cells | 23.8% | 2.1% | ↓↓ |
+| Epithelial cells | 5.4% | 0.04% | ↓↓ |
+| Macrophages | 8.6% | 7.3% | ↓ (slight) |
+| Stromal cells | 0.4% | 8.5% | ↑ |
+| Inflammatory monocytes | 0.03% | 6.5% | ↑ (near-absent in Control) |
+| Neutrophils | 0.05% | 5.3% | ↑ (near-absent in Control) |
+| Platelets | 0.05% | 4.2% | ↑ (near-absent in Control) |
+| Activated neutrophils | 0% | 1.4% | ↑ (absent in Control) |
 
-### Key Findings: Immune Cell Population Shifts During Ebola Infection
+*Note: initial clusters labeled "B cells/DC," "NK/CTL," and "CD4 T cells" showed large apparent increases in Ebola, but had ambiguous marker profiles suggesting multiple cell types were grouped together (see Subclustering below). These three rows are omitted from the table above pending full resolution; the cell types they likely represent are already captured in the confidently-identified rows shown.*
 
-**Expanded Cell Populations (Recruited/Proliferated):**
-- Cluster 0: +12.5% (unknown cell type)
-- Cluster 2: +11.3% (neutrophils)
-- Cluster 4: +7.0%
-- Cluster 7: +6.1%
-- Cluster 8: +5.8%
-- Cluster 11: +4.3%
+## Subclustering: Resolving a Mixed Population
 
-**Contracted Cell Populations (Depleted/Lost):**
-- Cluster 5: -16.2% (monocytes/macrophages)
-- Cluster 9: -13.3% (monocytes/macrophages)
-- Cluster 6: -9.1% (monocytes/macrophages)
-- Cluster 14: -11.4% (monocytes/macrophages)
+The "B cells/DC" cluster showed a mix of B-cell (MS4A1) and dendritic-cell (CD1C) marker genes, indicating it likely contained more than one true cell type. Re-clustering these ~7,000 cells in isolation (subclustering) split them into 7 sub-populations, including two confidently identifiable types:
 
-**Interpretation:**
-Ebola infection drives a shift from monocytes/macrophages toward neutrophil recruitment, consistent with an acute inflammatory response and immune dysregulation.
+- **Naive T cells** — markers: LEF1, ITK, IL7R, FYB1, GIMAP7
+- **Cytotoxic NK/CD8 T cells** — markers: GZMB, NKG7, CX3CR1
 
-### Differential Expression Analysis: Ebola vs Control
+along with several intermediate lymphocyte activation states (CXCR5+, SELL+ populations) and a small contaminating myeloid population (S100A8/A9+). This demonstrates the value of iterative subclustering for resolving cell identity beyond initial coarse clusters, and is a reminder that coarse-cluster labels/proportions should be interpreted cautiously where marker profiles are mixed.
 
-**Top Up-Regulated Genes (Turned ON in Ebola):**
-- **S100A8/S100A9** — Inflammatory markers (neutrophil activation)
-- **ISG15, MX1, MX2, IFI27** — Interferon response (antiviral)
-- **GBP3** — Immune defense
-- **LTF, LYZ** — Antimicrobial response
-- **MMP9** — Tissue remodeling
+## Differential Expression: Ebola vs Control
 
-**Top Down-Regulated Genes (Turned OFF in Ebola):**
-- **SPINK5** — Protease inhibitor (barrier function)
-- **CD79A** — B cell receptor (B cell suppression)
-- **KRT16, LAMB3, PLEC** — Epithelial integrity (tissue damage)
-- **TIMP3** — Tissue inhibitor of metalloproteinases
+**Top Up-Regulated Genes:**
 
-**Interpretation:**
-Ebola infection triggers a strong antiviral (interferon) and inflammatory (S100A8/9) response while simultaneously suppressing B cell function and epithelial integrity. This suggests a state of immune activation combined with tissue damage and immune dysregulation.
+| Gene | Log2FC | Function |
+|------|--------|----------|
+| ISG15 | 6.66 | Interferon-stimulated (antiviral) |
+| IFIT3 | 5.03 | Interferon-stimulated (antiviral) |
+| MX1 | 4.76 | Interferon-induced (antiviral) |
+| IFI27 | 4.08 | Interferon-stimulated |
+| MX2 | 4.03 | Interferon-induced (antiviral) |
+| DDX60 | 3.59 | Interferon-stimulated (antiviral) |
 
+**Top Down-Regulated Genes:**
 
-### July 4, 2025: Differential Expression Results
+| Gene | Log2FC | Function |
+|------|--------|----------|
+| KRT16 | -7.06 | Keratin (epithelial integrity) |
+| CDH1 | -6.16 | E-cadherin (epithelial cell adhesion) |
+| KRT7 | -4.82 | Keratin (epithelial integrity) |
+| SPINK5 | -4.18 | Protease inhibitor (epithelial barrier) |
+| KRT19 | -3.93 | Keratin (epithelial integrity) |
+| ITGB4 | -3.27 | Integrin (epithelial basement membrane adhesion) |
+| TIMP3 | -2.97 | Tissue inhibitor of metalloproteinases |
+| LAMB3 | -2.86 | Laminin (epithelial basement membrane) |
 
-**Top Up-Regulated Genes (Turned ON in Ebola):**
+## Interpretation
 
-| Gene | Fold Change | Function |
-|------|-------------|----------|
-| S100A8 | 833 | Inflammatory marker (neutrophil activation) |
-| S100A9 | 706 | Inflammatory marker (neutrophil activation) |
-| ISG15 | 333 | Interferon response (antiviral) |
-| MX1 | 115 | Interferon-induced (antiviral) |
-| IFI27 | 209 | Interferon response |
-| GBP3 | 247 | Immune defense |
-| LTF | 557 | Antimicrobial |
-| LYZ | 446 | Antimicrobial |
-| MMP9 | 220 | Tissue remodeling |
+**1. Antiviral interferon response is strongly activated.**
+Consistent, robust upregulation of classic interferon-stimulated genes (ISG15, IFIT3, MX1, IFI27, MX2, DDX60) — the expected innate antiviral signature during acute viral infection.
 
-**Top Down-Regulated Genes (Turned OFF in Ebola):**
+**2. Emergency myeloid expansion.**
+Inflammatory monocytes, neutrophils, and platelets are nearly absent in Control samples but comprise roughly 16% of cells combined in Ebola samples. This is consistent with emergency granulopoiesis, a documented feature of severe Ebola virus disease associated with worse clinical outcomes in humans.
 
-| Gene | Fold Change | Function |
-|------|-------------|----------|
-| SPINK5 | -78 | Protease inhibitor (skin barrier) |
-| CD79A | -20 | B cell receptor (B cell function) |
-| KRT16 | -19 | Keratin (epithelial integrity) |
-| LAMB3 | -18 | Cell adhesion |
-| PLEC | -14 | Cytoskeletal protein |
+**3. Epithelial barrier loss — supported by two independent lines of evidence.**
+Epithelial cells drop from 5.4% to 0.04% of the cell population, and separately, the most strongly down-regulated genes in the entire dataset are epithelial structural and adhesion genes (KRT16, CDH1, KRT7, SPINK5, ITGB4, LAMB3). The convergence of cell-composition and gene-expression evidence strengthens confidence in this finding, which is consistent with the tissue damage underlying Ebola's hemorrhagic pathology.
 
-**Interpretation:**
-- **Antiviral response is ON:** Interferon genes (ISG15, MX1, IFI27) are strongly activated.
-- **Inflammatory response is ON:** S100A8/A9 and antimicrobial genes (LTF, LYZ) are highly expressed.
-- **B cell function is OFF:** CD79A is suppressed.
-- **Tissue integrity is compromised:** KRT16, LAMB3, PLEC are down-regulated.
+**4. Lymphocyte depletion.**
+Naive T cells, B cells, and cytotoxic T/NK cells all show sharply reduced proportions in Ebola-infected samples — consistent with lymphopenia, a well-documented severity marker in human Ebola virus disease.
 
-This suggests a state of immune activation with tissue damage and B cell suppression.
+Together, these findings recapitulate several well-established immunopathological hallmarks of severe Ebola virus disease using single-cell transcriptomic data.
+
+## Limitations
+- No mitochondrial-percentage-based quality control filtering was applied prior to clustering; some low-quality or stressed cells may be included in the analysis.
+- Only one ambiguous cluster ("B cells/DC") was subclustered as a case study; other clusters with mixed marker profiles (e.g., "NK/CTL," "CD4 T cells") were not further resolved and their proportions should be interpreted cautiously.
+- This data file does not include tissue-of-origin metadata; results reflect this specific cell population rather than a confirmed single tissue or the full 13-tissue dataset described in the original study.
+- Differential expression was performed at the whole-dataset level (Ebola vs Control across all cell types combined), not separately within each cell type; cell-type-specific DE analysis is a natural next step.
+
+## Next Steps
+- Subcluster remaining ambiguous clusters for full-resolution cell type annotation
+- Apply mitochondrial percentage-based QC filtering and re-validate results
+- Run cell-type-specific differential expression (e.g., DE within T cells only, within monocytes only)
+- Pathway/gene set enrichment analysis on up/down-regulated gene lists
+- If timepoint resolution allows, analyze disease progression across Day 3–8 rather than a single pooled "Ebola" group
+
+## References
+- Santus L, et al. (2023). Single-cell profiling of lncRNA expression during Ebola virus infection in rhesus macaques. *Nat Commun* 14, 3866. [PMID: 37391481](https://pubmed.ncbi.nlm.nih.gov/37391481/)
+- [GEO: GSE192447](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE192447)
+
 
 
 

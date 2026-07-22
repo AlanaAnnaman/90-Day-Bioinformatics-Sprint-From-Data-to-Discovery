@@ -45,6 +45,13 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-07-11 | 2 | Attempted to download AMR data via terminal (curl/wget) from BV-BRC's FTP server; anonymous FTP access was refused (server-side issue). Pivoted to downloading directly through the BV-BRC website instead. | Key finding: terminal-based FTP download was not reliable at this time; the BV-BRC website's "AMR Phenotypes" tab with filters (Antibiotic, Resistant Phenotype, Evidence) provides a more dependable route to the same data. |
 | 2025-07-12 | 2 | Used the BV-BRC website's AMR Phenotypes tab for E. coli to filter to ciprofloxacin results with confirmed laboratory evidence only (excluding computationally-predicted records). Downloaded the filtered dataset (15,827 genomes: 2,071 Resistant, 6,560 Susceptible, 120 Intermediate). Decided to build this project in Python (pandas, scikit-learn) using VS Code. | Key finding: filtering to laboratory-confirmed evidence only was essential - the majority of unfiltered ciprofloxacin records (~222,000) were computational model predictions rather than real lab measurements, which would have compromised the independence of a new model trained on them. Ready to begin exploratory data analysis and feature engineering in Python. |
 | 2025-07-13 | 2 | Set up Python environment for the AMR project in VS Code; resolved a Python interpreter mismatch (VS Code was using system Python instead of the bioinfo conda environment where pandas is installed). Loaded the BVBRC_genome_amr.csv dataset (15,827 rows) and filtered to rows with a clear Resistant or Susceptible label, dropping rows with missing phenotypes or "Intermediate" results.| Key finding: after cleaning, 8,631 genomes have a clear, usable label (6,560 Susceptible, 2,071 Resistant). This is the labeled dataset that will be used for modeling. Next step identified: attach genomic features (presence/absence of known ciprofloxacin-resistance genes such as gyrA, gyrB, parC, parE) to each genome ID via BV-BRC's Specialty Genes data, since the current dataset only contains outcome labels, not genetic features to predict from. |
+| 2025-07-14 | 2 | Tested BV-BRC's public REST API from Python (requests library) to pull genomic feature data per genome. Debugged an initial keyword() search that returned empty results despite the target gene being present. |Key finding: switched from relying on the API's built-in search/filter syntax to pulling all records per genome and filtering client-side in Python - more reliable and avoided guessing at undocumented query syntax. |
+| 2025-07-15 |	2 |Investigated the biology and mechanism of ciprofloxacin resistance to guide feature selection: confirmed gyrA/gyrB/parC/parE (the drug's direct molecular targets) are present in essentially all E. coli genomes regardless of resistance status, making them useless as predictive features. Searched a known-Resistant genome for acquired qnr genes (plasmid-mediated quinolone resistance) across its full 3,433 annotated genes - none found. |Key finding: this dataset's resistance is more likely driven by gyrA/parC point mutations than acquired qnr genes; detecting point mutations directly would require sequence-level comparison, a larger technical step. Decided to pivot to a broader resistance-gene presence/absence feature set as a pragmatic first approach. |
+| 2025-07-16 |	2 |	Built and tested a script to pull all "Antibiotic Resistance" category genes (BV-BRC's sp_gene endpoint) for a genome, first on a small batch (20 genomes), then a larger test (50 genomes) with error handling and progress checkpointing added.	| Key finding: confirmed the pipeline runs reliably end-to-end on a small scale (50 genomes in under a minute) before committing to a larger, longer-running batch job. |
+| 2025-07-19 |	2 | Ran the full data collection script on a random sample of 2,000 genomes (stratified representation of the 8,631 clean dataset). Saved results with periodic backups every 100 genomes. |Key finding: only 1,263 of 2,000 genomes had any resistance-gene annotation in BV-BRC; the rest lacked specialty gene data and were set aside. Sample retained a representative Resistant/Susceptible ratio (303/960). |
+| 2025-07-20 | 2 |	Converted the raw semicolon-separated gene lists into a proper one-hot encoded feature table (570 unique genes -> individual 0/1 columns). Fixed a pandas performance warning by batching column creation instead of looping. Filtered to 154 genes with meaningful prevalence variation (5%-95%), and statistically compared gene prevalence between Resistant and Susceptible genomes. |Key finding: several genes (mphA, CTX-M family, sul1, QacE, Tet(A), and others) showed a large prevalence gap between Resistant and Susceptible genomes. None directly target ciprofloxacin - all are linked to co-selection on shared multidrug-resistance plasmids/integrons (notably sul1 + QacE, a documented class 1 integron marker pair). |
+| 2025-07-21 | 2 |	Split the 1,263 annotated genomes into training (1,010) and test (253) sets. Trained a Random Forest classifier (100 trees) on the 154 informative gene features and evaluated on the held-out test set. |Key finding: 90% overall accuracy. Precision/recall was strong for Susceptible (0.91/0.96) but notably weaker for Resistant (0.84/0.70) - the model misses about 3 in 10 truly resistant genomes, likely those relying on undetected point mutations rather than co-selected marker genes. |
+| 2025-07-22 | 	2 | Extracted Random Forest feature importance and compared it against the independently-identified high-difference genes from the prevalence analysis. Rewrote the AMR project README to document the full feature engineering process (including the gyrA/parC/qnr dead end), model results, and honest limitations. | Key finding: top model features (CTX-M family, mphA, vgaC, Mrx, QacE, sul1) closely matched the genes independently flagged by the prevalence comparison, confirming the model learned real, biologically explainable signal rather than noise. |
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
@@ -501,78 +508,89 @@ Together, these findings recapitulate several well-established immunopathologica
 
 
 
-🦠 Antimicrobial Resistance (AMR) Prediction — Machine Learning Project
+# 🦠 Antimicrobial Resistance (AMR) Prediction — Machine Learning Project
 
-Predicting antibiotic resistance in Escherichia coli from genomic data, using real laboratory-tested susceptibility results.
+Predicting antibiotic resistance in *Escherichia coli* from genomic data, using real laboratory-tested susceptibility results.
 
-Project Goal
+## Project Goal
 
-Given genomic features from a bacterial sample, predict whether it will be Resistant or Susceptible to a specific antibiotic — without needing to run the actual lab test. This is a supervised machine learning classification problem, applied to bacterial genomics.
+Given genomic features from a bacterial sample, predict whether it will be **Resistant** or **Susceptible** to a specific antibiotic — without needing to run the actual lab test. This is a supervised machine learning classification problem, applied to bacterial genomics.
 
-Why This Project
+## Why This Project
 
 Antimicrobial resistance is one of the top global public health threats. Being able to predict resistance genomically — faster than culturing and testing bacteria in a lab — has real clinical and public health value. This project also pairs thematically with an existing project analyzing host immune response to Ebola infection (single-cell RNA-seq), forming a broader portfolio focus on infectious disease genomics.
 
-Dataset
+## Dataset
 
-Source: BV-BRC (Bacterial and Viral Bioinformatics Resource Center, formerly known as PATRIC)
+**Source:** [BV-BRC](https://www.bv-brc.org) (Bacterial and Viral Bioinformatics Resource Center, formerly known as PATRIC)
 
+- **Organism:** *Escherichia coli*
+- **Antibiotic:** Ciprofloxacin
+- **Total genomes downloaded (lab-confirmed evidence only):** 15,827
+  - Susceptible: 6,560
+  - Resistant: 2,071
+  - Intermediate: 120
+  - No interpreted phenotype (raw MIC value only): 7,076
+- **Clean labeled subset:** 8,631 genomes (6,560 Susceptible, 2,071 Resistant), after removing rows with no interpreted phenotype and excluding the ambiguous "Intermediate" category.
+- **Modeling sample used so far:** a random subset of 2,000 genomes drawn from the clean 8,631 (303 Resistant, 960 Susceptible had usable gene annotation — see Feature Engineering below). Scaling to the full 8,631 is a planned next step.
 
-Organism: Escherichia coli
-Antibiotic: Ciprofloxacin
-Total genomes downloaded (lab-confirmed evidence only): 15,827
+**Important data quality note:** BV-BRC provides both real laboratory-tested resistance results and computationally-predicted results (generated by BV-BRC's own XGBoost models). The unfiltered ciprofloxacin dataset contains ~238,000 records, but the majority (~222,000) are computational predictions, not real lab measurements. This dataset was filtered to **Evidence = "Laboratory Method"** only, to ensure the model is trained on real biological data rather than another model's predictions.
 
-Susceptible: 6,560
-Resistant: 2,071
-Intermediate: 120
-No interpreted phenotype (raw MIC value only): 7,076
+## Tools
 
+- **Language:** Python (not R — this project uses `pandas`, `scikit-learn`, and `requests`, as it's a tabular classification problem rather than a single-cell biology analysis)
+- **Editor:** VS Code
+- **Environment:** `bioinfo` conda environment (numpy, pandas, scikit-learn, requests already installed)
+- **Data access:** BV-BRC's public REST API (`https://www.bv-brc.org/api/`), queried directly from Python
 
+## Feature Engineering
 
-Clean labeled subset used for modeling: 8,631 genomes (6,560 Susceptible, 2,071 Resistant), after removing rows with no interpreted phenotype and excluding the ambiguous "Intermediate" category.
+The initial plan was to check for the presence of specific antibiotic-target genes (`gyrA`, `gyrB`, `parC`, `parE` — DNA gyrase and topoisomerase IV, the direct molecular targets of fluoroquinolones like ciprofloxacin). This did not work as a feature on its own: these are essential genes present in virtually every *E. coli* genome regardless of resistance status, so they carry no discriminating signal. A search for acquired **qnr genes** (plasmid-mediated quinolone resistance) also came back empty for a genome known to be Resistant, checked across all 3,433 of its annotated genes — indicating this particular resistance mechanism in this dataset is more likely driven by point mutations in gyrA/parC (not detected by this approach) rather than acquired qnr genes.
 
+**Revised approach:** pulled all annotated "Antibiotic Resistance" category genes (BV-BRC's `sp_gene` endpoint) for each genome and used gene presence/absence as a broad feature set, rather than targeting only the direct fluoroquinolone mechanism. Across a random sample of 2,000 genomes, this returned 570 unique resistance-associated genes; only 1,263 of the 2,000 genomes had any gene annotation at all (the rest had no specialty gene data recorded in BV-BRC and were excluded from modeling). Of the annotated genomes, 154 genes showed meaningful prevalence variation (present in 5%-95% of genomes) and were used as the model's feature set.
 
-Important data quality note: BV-BRC provides both real laboratory-tested resistance results and computationally-predicted results (generated by BV-BRC's own XGBoost models). The unfiltered ciprofloxacin dataset contains ~238,000 records, but the majority (~222,000) are computational predictions, not real lab measurements. This dataset was filtered to Evidence = "Laboratory Method" only, to ensure the model is trained on real biological data rather than another model's predictions.
+**Key finding:** the genes most strongly associated with ciprofloxacin resistance were not fluoroquinolone-specific at all — they were genes conferring resistance to *other* antibiotic classes (mphA/Mph(A) family/Mrx — macrolide resistance; CTX-M family — extended-spectrum beta-lactamase; sul1 — sulfonamide resistance; QacE — disinfectant resistance; Tet(A)/tetC — tetracycline resistance). This is consistent with **co-selection**: these genes are frequently carried together on the same mobile genetic elements (plasmids/class 1 integrons — sul1 and QacE in particular are a well-documented linked pair on the conserved segment of class 1 integrons). A genome carrying one of these multidrug-resistance elements often carries ciprofloxacin resistance as part of the same package, even though none of these specific genes directly disable the drug.
 
-Tools
+## Model & Results
 
+- **Model:** Random Forest classifier (100 trees), chosen for its ability to handle many binary features relative to sample size, capture gene-combination effects (relevant given the co-selection pattern above), and provide feature importance for interpretation.
+- **Data split:** 1,010 genomes training / 253 genomes test (80/20 split, stratified by class)
+- **Accuracy:** 90%
+- **Detailed performance:**
 
-Language: Python (not R — this project uses pandas and scikit-learn, as it's a tabular classification problem rather than a single-cell biology analysis)
-Editor: VS Code
-Environment: bioinfo conda environment (numpy, pandas, scikit-learn already installed)
+| Class | Precision | Recall | F1-score | Support |
+|---|---|---|---|---|
+| Resistant | 0.84 | 0.70 | 0.77 | 61 |
+| Susceptible | 0.91 | 0.96 | 0.93 | 192 |
 
+**Top predictive features (Random Forest feature importance):** CTX-M family, mphA, vgaC, Mrx, Mph(A) family, CTX-M-15, dfrA17, QacE, sul1, Tet(A) — closely matching the genes independently identified as having the largest prevalence gap between Resistant and Susceptible genomes, which supports that the model is learning a real, biologically explainable signal rather than noise.
 
-Planned Pipeline
+**Honest limitation:** recall on the Resistant class (70%) is meaningfully lower than on Susceptible (96%) — the model misses roughly 3 in 10 truly resistant genomes. This is the clinically more important error type (a missed resistant infection could be treated with a drug that won't work), and is likely explained by the feature set: genomes resistant purely through a gyrA/parC point mutation, without an accompanying multidrug-resistance plasmid, would show none of these co-selection marker genes and would be predicted Susceptible by this model.
 
+## Planned Pipeline / Next Steps
 
-Load and explore the downloaded AMR metadata (genome ID, antibiotic, resistance phenotype) ✅ Done — loaded 15,827 records, filtered to 8,631 genomes with a clear Resistant/Susceptible label.
-Obtain genomic features for each genome — starting with presence/absence of known resistance genes (from BV-BRC/CARD annotations) as an interpretable first feature set. (In progress — next step.)
-Merge phenotype labels with genomic features into a single modeling dataset
-Train baseline models (logistic regression, Random Forest, XGBoost) to predict Resistant vs. Susceptible
-Evaluate using accuracy, precision/recall, and ROC-AUC; use cross-validation given the class imbalance (2,071 Resistant vs. 6,560 Susceptible)
-Interpret feature importance — which resistance genes matter most, and why, mechanistically (e.g., gyrA/parC mutations are well-documented drivers of fluoroquinolone resistance)
+1. ~~Load and explore the downloaded AMR metadata~~ ✅ Done
+2. ~~Obtain genomic features for each genome~~ ✅ Done (broad resistance-gene presence/absence; see Feature Engineering above)
+3. ~~Merge phenotype labels with genomic features~~ ✅ Done
+4. ~~Train a baseline model~~ ✅ Done (Random Forest, 90% accuracy)
+5. Scale up from the 2,000-genome sample to the full 8,631-genome clean dataset
+6. Compare against logistic regression and XGBoost
+7. Evaluate with cross-validation and ROC-AUC, given class imbalance
+8. Investigate direct detection of gyrA/parC point mutations (sequence-level, not just gene presence/absence) to potentially improve recall on the Resistant class
 
+## Limitations
 
-Limitations (to be expanded as the project progresses)
+- Currently scoped to a single antibiotic (ciprofloxacin) in a single species (*E. coli*); results may not generalize to other antibiotics or organisms without separate modeling.
+- Feature set captures gene presence/absence, largely reflecting co-selected multidrug-resistance markers rather than the direct causal mechanism (gyrA/parC point mutations) for this specific drug class; this likely explains the model's lower recall on the Resistant class.
+- Only 1,263 of 2,000 sampled genomes had any resistance-gene annotation in BV-BRC; genomes without annotation were excluded from modeling rather than imputed.
+- Rows with only a raw MIC value (no interpreted Resistant/Susceptible category) were excluded from this first pass; these could potentially be incorporated later with an interpretation rule (e.g., CLSI/EUCAST breakpoints).
+- Modeling to date uses a 2,000-genome random sample rather than the full 8,631-genome clean dataset.
 
+## References
 
-Currently scoped to a single antibiotic (ciprofloxacin) in a single species (E. coli); results may not generalize to other antibiotics or organisms without separate modeling.
-Initial feature set (planned: known resistance gene presence/absence) is simpler than full sequence-based features (e.g., k-mers); this trades some predictive power for interpretability as a starting point.
-Rows with only a raw MIC value (no interpreted Resistant/Susceptible category) were excluded from this first pass; these could potentially be incorporated later with an interpretation rule (e.g., CLSI/EUCAST breakpoints).
-
-
-References
-
-
-BV-BRC
-Antonopoulos, D.A. et al. "PATRIC as a unique resource for studying antimicrobial resistance." Briefings in Bioinformatics.
-Davis, J.J. et al. (2016). "Antimicrobial Resistance Prediction in PATRIC and RAST." Scientific Reports 6, 27930.
-
-
-
-
-
-
+- [BV-BRC](https://www.bv-brc.org)
+- Antonopoulos, D.A. et al. "PATRIC as a unique resource for studying antimicrobial resistance." *Briefings in Bioinformatics*.
+- Davis, J.J. et al. (2016). "Antimicrobial Resistance Prediction in PATRIC and RAST." *Scientific Reports* 6, 27930.
 ## Skills Tracked
 
 - [ ] Python (pandas, numpy, scikit-learn)

@@ -53,6 +53,10 @@ This repository documents my transition to full-time bioinformatics. I am commit
 | 2025-07-21 | 2 |	Split the 1,263 annotated genomes into training (1,010) and test (253) sets. Trained a Random Forest classifier (100 trees) on the 154 informative gene features and evaluated on the held-out test set. |Key finding: 90% overall accuracy. Precision/recall was strong for Susceptible (0.91/0.96) but notably weaker for Resistant (0.84/0.70) - the model misses about 3 in 10 truly resistant genomes, likely those relying on undetected point mutations rather than co-selected marker genes. |
 | 2025-07-22 | 	2 | Extracted Random Forest feature importance and compared it against the independently-identified high-difference genes from the prevalence analysis. Rewrote the AMR project README to document the full feature engineering process (including the gyrA/parC/qnr dead end), model results, and honest limitations. | Key finding: top model features (CTX-M family, mphA, vgaC, Mrx, QacE, sul1) closely matched the genes independently flagged by the prevalence comparison, confirming the model learned real, biologically explainable signal rather than noise. |
 |2025-07-23	3 |Trained and compared three models (Random Forest, Logistic Regression, XGBoost) on the same train/test split. Added visual comparison charts. Ran 5-fold cross-validation and calculated ROC-AUC; caught and fixed a bug where the ROC-AUC score was inverted due to an incorrect assumption about class column order in predict_proba(). Cleaned up and fully documented both project scripts (collect_data.py, build_features.py) with step-by-step ML workflow comments. Updated the AMR project README with the complete model comparison, cross-validation/ROC-AUC results, and finalized pipeline status. | Key finding: all three models performed within ~2 percentage points of each other (88-90% accuracy), indicating the feature set - not the algorithm choice - is the current performance ceiling. Cross-validation (90.7% average) confirmed the result is stable. Corrected ROC-AUC score is 0.92, indicating strong class separation. Project now has a complete, documented first version: data collection through model evaluation and interpretation, with clearly identified future work (point mutation detection, full-dataset scaling). |
+|2025-07-24	3 |Started a new project predicting MEFV gene mutation pathogenicity (Pathogenic vs. Benign), using data from INFEVERS. Set up Jupyter Notebook (troubleshot a broken/phantom kernel environment, resolved by manually registering the bioinfo conda environment as a Jupyter kernel via ipykernel). Loaded and cleaned the dataset (fixed encoding and delimiter issues), narrowing 410 total records to 205 with a clear Pathogenic/Benign label. Tested several candidate features (protein consequence, mutation type, gene region, base substitution), built a Random Forest model, and compared a standard version against a class-weighted version to address a strong recall bias toward the majority class. Wrote a full project README explaining the biology, methodology, and honest model tradeoffs in plain, professional language. |	Key finding: mutation location (exon vs. intron) is a real, biologically coherent predictor (96% of Pathogenic mutations sit in exons vs. 80% of Benign), but with only 205 examples and 2 simple features, the model faces a genuine precision/recall tradeoff - a standard model catches only 3 of 10 truly Pathogenic mutations but is never wrong when it flags one, while a class-balanced version catches 5 of 10 at the cost of far more false positives. Both are reported honestly as legitimate options rather than a single resolved answer.
+
+
+
 
 ## Project Log: Step 1 – Data Acquisition and Repository Setup
 
@@ -614,7 +618,74 @@ All three models landed within about 2 percentage points of each other, indicati
 - Davis, J.J. et al. (2016). "Antimicrobial Resistance Prediction in PATRIC and RAST." *Scientific Reports* 6, 27930.
 
 
+# MEFV Mutation Project: Predicting Whether a Genetic Variant Is Harmful
 
+## Overview
+
+Familial Mediterranean Fever is a hereditary condition that causes repeated episodes of fever and abdominal pain. It is especially common in people of Turkish, Armenian, Arab, or Jewish descent, and it is caused by a mutation in a single gene, called MEFV.
+
+A gene can be thought of as a set of instructions written in a four letter genetic alphabet. Most people's copy of a given gene reads the same way. A mutation is a small change somewhere in that copy. Some mutations have no real effect, similar to a typo in a page margin nobody reads. Others disrupt something important enough to cause disease.
+
+This project set out to answer a practical question: given a MEFV mutation, can a model predict whether it is likely to be harmful or harmless, based only on the mutation's own properties? This is a genuine, ongoing challenge in clinical genetics. When a new mutation is identified in a patient, it is often unclear at first whether it should be treated as a concern.
+
+## Motivation
+
+This project extends an existing portfolio built around infectious disease genomics, including an Ebola immune response analysis and an antimicrobial resistance prediction model. It also reflects a personal interest in understanding what distinguishes a harmful genetic mutation from a harmless one, and connects naturally to Turkiye, where Familial Mediterranean Fever is particularly prevalent.
+
+## Data Source
+
+Data was obtained from INFEVERS, a public database of autoinflammatory disease mutations maintained by the International Society for Systemic Autoinflammatory Diseases (https://infevers.umai-montpellier.fr).
+
+Of the records available for the MEFV gene, 205 mutations had a clear, expert-reviewed classification. Of these, 157 were classified as Benign and 48 as Pathogenic. Records classified as "Uncertain significance" or left unresolved were excluded, since they do not represent a confident answer to learn from.
+
+## Identifying Useful Features
+
+Several properties of each mutation were evaluated as potential predictors.
+
+The protein level effect of each mutation was considered first, but this information was missing for the large majority of records and could not be used.
+
+The general type of mutation, such as a single letter substitution versus a larger deletion, was also considered. However, 96 percent of all mutations in the dataset were simple substitutions, leaving little variation to distinguish harmful from harmless cases.
+
+The location of each mutation within the gene proved more informative. Genes contain coding regions, known as exons, which directly determine the structure of the resulting protein, and non-coding regions, known as introns, which are typically removed before the protein is built. Pathogenic mutations were found in exons 96 percent of the time, compared to 80 percent for benign mutations, a meaningful difference consistent with known biology.
+
+The specific base substitution involved in each mutation, for example a C changing to a T, showed sufficient variation across the dataset to serve as an additional feature.
+
+The final feature set therefore consisted of two properties: the region of the gene in which the mutation occurs, and the specific base substitution involved.
+
+## Model and Results
+
+A Random Forest classifier was trained on 80 percent of the dataset and evaluated on the remaining 20 percent.
+
+The initial model achieved 83 percent accuracy. This figure warrants some context: because benign mutations make up the majority of the dataset, a model that simply predicted "benign" for every case would already achieve approximately 76 percent accuracy without using any information at all. The more meaningful measure of performance is how well the model identifies mutations that are genuinely pathogenic. Of 10 truly pathogenic mutations in the test set, the model correctly identified only 3.
+
+A second version of the model was trained with class weighting adjusted to give equal importance to both categories, rather than allowing the more common category to dominate. This version correctly identified 5 of the 10 pathogenic mutations, an improvement in sensitivity. However, overall accuracy fell to 56 percent, as the model began misclassifying a substantial number of benign mutations as pathogenic.
+
+| Model Version | Accuracy | Pathogenic Cases Correctly Identified |
+|---|---|---|
+| Standard | 83% | 3 of 10 |
+| Class-weighted | 56% | 5 of 10 |
+
+Neither version is unambiguously superior. The standard model is highly reliable whenever it flags a mutation as pathogenic, but misses most true positive cases. The class-weighted model identifies more true positives, at the cost of a substantially higher false positive rate. In a clinical context, where failing to flag a genuinely harmful mutation may carry greater risk than a false alarm, this tradeoff has real practical significance and does not resolve to a single "best" answer.
+
+## Interpretation
+
+With only 205 labeled examples and two relatively simple features, this dataset offers limited information relative to, for example, the several thousand genomes used in the accompanying antimicrobial resistance project. That a real, biologically coherent signal was identified under these constraints, namely that pathogenic mutations cluster in coding regions, is a meaningful finding in its own right. Reporting the accuracy tradeoff transparently, rather than presenting a single favorable metric, reflects a more accurate and appropriately cautious account of the model's actual performance.
+
+## Biological Context
+
+The MEFV gene encodes a protein called pyrin, which functions within certain immune cells as part of the body's inflammatory response system. Under normal conditions, pyrin helps trigger inflammation, such as fever, in response to genuine threats like infection.
+
+A pathogenic mutation alters pyrin's structure sufficiently to disrupt this regulation, causing the inflammatory response to activate without a genuine trigger, or to fail to deactivate appropriately. This produces the recurrent fever episodes characteristic of Familial Mediterranean Fever.
+
+This also explains why mutation location was found to be predictive. A mutation within an exon can directly alter the structure of the pyrin protein, while a mutation within an intron is typically removed before the protein is constructed and therefore has little effect on its final structure. This is consistent with the higher concentration of pathogenic mutations observed in exons.
+
+## Future Directions
+
+Incorporating additional features, such as protein-level conservation scores or existing computational prediction tools, would likely improve model performance. Applying this same approach to a larger set of mutations, potentially across additional genes represented in the INFEVERS database, would also help establish how well these findings generalize beyond this initial, modestly sized dataset.
+
+## Data Source
+
+INFEVERS: https://infevers.umai-montpellier.fr
 
 
 

@@ -3,9 +3,6 @@
 **Start Date:** June 22, 2025
 **Target Completion:** September 20, 2025
 
-## Purpose
-
-This repository documents my transition to full-time bioinformatics. I am committing to 90 days of focused work to build skills, complete projects, and establish myself as a working bioinformatician.
 
 ## Focus Areas
 
